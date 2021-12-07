@@ -2,6 +2,8 @@ package org.rygn.kanban.controller;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
+
 import org.rygn.kanban.dao.TaskRepository;
 import org.rygn.kanban.domain.Task;
 import org.rygn.kanban.service.TaskService;
@@ -28,27 +30,22 @@ public class TaskController {
 	}
 	
 	@PostMapping("/tasks")
-	Task newTask(@RequestBody Task newTask) {
+	Task newTask(@Valid @RequestBody Task newTask) {
 		return this.taskService.createTask(newTask);
 	} 
 	
 	@PatchMapping(path = "/tasks/{id}")
 	Task movetask(@RequestBody TaskMoveAction taskMoveAction, @PathVariable Long id) {
 		Task task = this.taskService.findTask(id);
-		
 		if (Constants.MOVE_LEFT_ACTION.equals(taskMoveAction.getAction())) { 
-		
 			task = this.taskService.moveLeftTask(task);
 		}
 		else if (Constants.MOVE_RIGHT_ACTION.equals(taskMoveAction.getAction())) {
-			
 			task = this.taskService.moveRightTask(task);
 		}
 		else {
 			throw new IllegalStateException();
 		}
-		
 		return task;
 	}
-	
 }

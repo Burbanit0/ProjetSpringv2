@@ -2,6 +2,7 @@ package org.rygn.kanban.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import lombok.Data;
 @Entity
 public class TaskType {
 
+	@NotNull(message = "Type cannot be empty")
 	private @Id Long id;
 	
 	private String label;
