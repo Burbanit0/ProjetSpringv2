@@ -5,6 +5,8 @@ import java.util.Collection;
 import org.rygn.kanban.dao.TaskRepository;
 import org.rygn.kanban.domain.Task;
 import org.rygn.kanban.service.TaskService;
+import org.rygn.kanban.utils.Constants;
+import org.rygn.kanban.utils.TaskMoveAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,29 +22,33 @@ public class TaskController {
 	@Autowired
 	private TaskService taskService;
 	
-	@Autowired
-	private TaskRepository taskRepository;
-	
 	@GetMapping("/tasks")
 	Collection<Task> findAllTasks() {
-		return taskService.findAllTasks();
+		return this.taskService.findAllTasks();
 	}
 	
 	@PostMapping("/tasks")
 	Task newTask(@RequestBody Task newTask) {
-		return taskRepository.save(newTask);
-	}
+		return this.taskService.createTask(newTask);
+	} 
 	
-	@PatchMapping(path = "/tasks/{id}", consumes = "application/json-patch+json")
-	public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody JsonPatch patch) {
-		try {
-			Task task = taskRepository.findById(id).get();
-			task.setDevelopers(null);
-			return new ResponseEntity<Task>(taskRepository.save(task), HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	@PatchMapping(path = "/tasks/{id}")
+	Task movetask(@RequestBody TaskMoveAction taskMoveAction, @PathVariable Long id) {
+		Task task = this.taskService.findTask(id);
+		
+		if (Constants.MOVE_LEFT_ACTION.equals(taskMoveAction.getAction())) { 
+		
+			task = this.taskService.moveLeftTask(task);
 		}
+		else if (Constants.MOVE_RIGHT_ACTION.equals(taskMoveAction.getAction())) {
+			
+			task = this.taskService.moveRightTask(task);
+		}
+		else {
+			throw new IllegalStateException();
+		}
+		
+		return task;
 	}
-	
 	
 }
